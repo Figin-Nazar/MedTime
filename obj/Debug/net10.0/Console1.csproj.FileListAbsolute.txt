@@ -1,0 +1,14 @@
+D:\Kode VisualStudio\Console1\Console1\bin\Debug\net10.0\Console1.exe
+D:\Kode VisualStudio\Console1\Console1\bin\Debug\net10.0\Console1.deps.json
+D:\Kode VisualStudio\Console1\Console1\bin\Debug\net10.0\Console1.runtimeconfig.json
+D:\Kode VisualStudio\Console1\Console1\bin\Debug\net10.0\Console1.dll
+D:\Kode VisualStudio\Console1\Console1\bin\Debug\net10.0\Console1.pdb
+D:\Kode VisualStudio\Console1\Console1\obj\Debug\net10.0\Console1.GeneratedMSBuildEditorConfig.editorconfig
+D:\Kode VisualStudio\Console1\Console1\obj\Debug\net10.0\Console1.AssemblyInfoInputs.cache
+D:\Kode VisualStudio\Console1\Console1\obj\Debug\net10.0\Console1.AssemblyInfo.cs
+D:\Kode VisualStudio\Console1\Console1\obj\Debug\net10.0\Console1.csproj.CoreCompileInputs.cache
+D:\Kode VisualStudio\Console1\Console1\obj\Debug\net10.0\Console1.dll
+D:\Kode VisualStudio\Console1\Console1\obj\Debug\net10.0\refint\Console1.dll
+D:\Kode VisualStudio\Console1\Console1\obj\Debug\net10.0\Console1.pdb
+D:\Kode VisualStudio\Console1\Console1\obj\Debug\net10.0\Console1.genruntimeconfig.cache
+D:\Kode VisualStudio\Console1\Console1\obj\Debug\net10.0\ref\Console1.dll
