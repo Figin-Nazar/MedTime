@@ -9,20 +9,18 @@ public class User
     public bool IsFirstLogin { get; set; }
 
     // 🔹 Системні поля
-    public Guid Id { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public Guid Id { get; private set; } = Guid.NewGuid(); //  авто-унікальний
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-    // 🔹 Пустий конструктор (для читання з файлу)
+    // 🔹 Пустий конструктор
     public User() { }
 
     // 🔹 Основний конструктор
     public User(string login, string password, string role)
     {
-        Id = Guid.NewGuid();
         Login = login;
         Password = password;
         Role = role;
-        CreatedAt = DateTime.Now;
         IsFirstLogin = false;
     }
 
@@ -48,7 +46,7 @@ public class User
         return $"{Id};{Login};{Password};{Role};{CreatedAt};{IsFirstLogin}";
     }
 
-    // 🔹 Читання з файлу (ВАЖЛИВО: з перевіркою)
+    // 🔹 Читання з файлу
     public static User FromFileString(string line)
     {
         try

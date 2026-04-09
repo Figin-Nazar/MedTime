@@ -1,33 +1,37 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 
-class UserService
+public class UserService
 {
-    private string path = "Users.txt";
+    private string path = "users.txt";
 
+    public UserService()
+    {
+        if (!File.Exists(path))
+            File.Create(path).Close();
+    }
+
+    // 🔹 ЗБЕРЕГТИ користувача
+    public void SaveUser(User user)
+    {
+        File.AppendAllText(path, user.ToFileString() + Environment.NewLine);
+    }
+
+    // 🔹 ЗАВАНТАЖИТИ всіх
     public List<User> LoadUsers()
     {
-        List<User> user = new List<User>();
-
-        if (!File.Exists(path))
-            return user;
+        var users = new List<User>();
 
         var lines = File.ReadAllLines(path);
 
         foreach (var line in lines)
         {
-            var parts = line.Split(';');
-            user.Add(new User(parts[0], parts[1], parts[2]));
+            var user = User.FromFileString(line);
+            if (user != null)
+                users.Add(user);
         }
 
-        return user;
-    }
-
-    public void SaveUser(User user)
-    {
-        string line = $"{user.Login};{user.Password};{user.Role}";
-        File.AppendAllText(path, line + "\n");
+        return users;
     }
 }
