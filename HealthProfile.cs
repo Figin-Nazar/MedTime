@@ -6,7 +6,21 @@ namespace Console1
 {
     class HealthProfile
     {
-        private double Weight;
-        private double Geneder;
+        private double _weight;
+
+        public double Weight
+        {
+            get => _weight;
+            set
+            {
+                if (value <= 0)
+                    throw new ArgumentException("Вага повинна бути більше 0");
+
+                if (value > 500)
+                    throw new ArgumentException("Нереальна вага");
+
+                _weight = value;
+            }
+        }
     }
 }

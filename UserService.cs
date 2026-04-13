@@ -15,6 +15,12 @@ public class UserService
     // 🔹 ЗБЕРЕГТИ користувача
     public void SaveUser(User user)
     {
+        user.Login = user.Login.Trim(); // ✅ NEW
+        user.Password = user.Password.Trim(); // ✅ NEW
+
+        if (string.IsNullOrWhiteSpace(user.Login))
+            throw new Exception("Пустий логін");
+
         File.AppendAllText(path, user.ToFileString() + Environment.NewLine);
     }
 

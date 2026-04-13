@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 class PatientService
 {
@@ -27,7 +28,8 @@ class PatientService
         return Path.Combine(folder, login + ".txt");
     }
 
-    public void CreatePatient(string login, string allergies, string chronic, string other)
+    // ===================== СТВОРЕННЯ ПАЦІЄНТА =====================
+    public void CreatePatient(string login, string allergies = "немає", string chronic = "немає", string other = "немає")
     {
         string path = GetPath(login);
 
@@ -46,11 +48,7 @@ Other: {other}
         }
     }
 
-    public void CreatePatient(string login)
-    {
-        CreatePatient(login, "немає", "немає", "немає");
-    }
-
+    // ===================== ВИВІД ПРОФІЛЮ =====================
     public void ShowPatient(string login)
     {
         string path = GetPath(login);
@@ -64,6 +62,7 @@ Other: {other}
         Console.WriteLine(File.ReadAllText(path));
     }
 
+    // ===================== ДОДАВАННЯ ЛІКІВ =====================
     public void AddMedicine(string login, string med)
     {
         string path = GetPath(login);
@@ -74,25 +73,61 @@ Other: {other}
             return;
         }
 
-        var lines = File.ReadAllLines(path);
-        List<string> newLines = new List<string>();
+        var lines = File.ReadAllLines(path).ToList();
 
-        bool added = false;
+        int currentCount = lines.Count(l => l.Contains(";"));
+        if (currentCount >= 20)
+        {
+            Console.WriteLine("Досягнуто максимум ліків (20)");
+            return;
+        }
+
+        var meds = lines
+            .Where(l => l.Contains(";"))
+            .Select(l => l.Split(';'))
+            .Where(p => p.Length == 3)
+            .OrderBy(p => TimeSpan.Parse(p[2]))
+            .ToList();
+
+        var newMed = med.Split(';');
+
+        if (newMed.Length != 3)
+        {
+            Console.WriteLine("Невірний формат ліків");
+            return;
+        }
+
+        meds.Add(newMed);
+
+        meds = meds.OrderBy(p => TimeSpan.Parse(p[2])).ToList();
+
+        List<string> newLines = new List<string>();
+        bool inCurrent = false;
 
         foreach (var line in lines)
         {
-            newLines.Add(line);
-
-            if (line.Trim() == "# CURRENT" && !added)
+            if (line.Trim() == "# CURRENT")
             {
-                newLines.Add(med);
-                added = true;
+                newLines.Add(line);
+                inCurrent = true;
+
+                foreach (var m in meds)
+                    newLines.Add($"{m[0]};{m[1]};{m[2]}");
+
+                continue;
             }
+
+            if (line.Trim() == "# HISTORY")
+                inCurrent = false;
+
+            if (!inCurrent)
+                newLines.Add(line);
         }
 
         File.WriteAllLines(path, newLines);
     }
 
+    // ===================== ВИВІД ЛІКІВ =====================
     public void ShowMedicines(string login)
     {
         string path = GetPath(login);
@@ -106,6 +141,7 @@ Other: {other}
         var lines = File.ReadAllLines(path);
 
         bool show = false;
+        bool empty = true;
 
         foreach (var line in lines)
         {
@@ -116,14 +152,22 @@ Other: {other}
             }
 
             if (line.Trim() == "# HISTORY")
-            {
                 show = false;
-            }
 
             if (show && !string.IsNullOrWhiteSpace(line))
             {
-                Console.WriteLine(line);
+                var parts = line.Split(';');
+
+                if (parts.Length == 3)
+                {
+                    Console.WriteLine($"💊 {parts[0]} | Доза: {parts[1]} | Час: {parts[2]}");
+                }
+
+                empty = false;
             }
         }
+
+        if (empty)
+            Console.WriteLine("Список ліків пустий");
     }
 }

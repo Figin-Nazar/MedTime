@@ -2,20 +2,20 @@
 
 public class User
 {
-    // 🔹 Дані для входу
+    
     public string Login { get; set; }
     public string Password { get; set; }
     public string Role { get; set; } // Admin / Doctor / User
     public bool IsFirstLogin { get; set; }
 
-    // 🔹 Системні поля
+    
     public Guid Id { get; private set; } = Guid.NewGuid(); //  авто-унікальний
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-    // 🔹 Пустий конструктор
+    
     public User() { }
 
-    // 🔹 Основний конструктор
+    
     public User(string login, string password, string role)
     {
         Login = login;
@@ -24,13 +24,13 @@ public class User
         IsFirstLogin = false;
     }
 
-    // 🔹 Перевірка пароля
+    //  Перевірка пароля
     public bool CheckPassword(string password)
     {
         return Password == password;
     }
 
-    // 🔹 Зміна пароля
+    //  Зміна пароля
     public void ChangePassword(string newPassword)
     {
         if (string.IsNullOrWhiteSpace(newPassword))
@@ -40,13 +40,13 @@ public class User
         IsFirstLogin = false;
     }
 
-    // 🔹 Запис у файл
+    //  Запис у файл
     public string ToFileString()
     {
         return $"{Id};{Login};{Password};{Role};{CreatedAt};{IsFirstLogin}";
     }
 
-    // 🔹 Читання з файлу
+    //  Читання з файлу
     public static User FromFileString(string line)
     {
         try
@@ -73,7 +73,7 @@ public class User
         }
     }
 
-    // 🔹 Вивід
+    //  Вивід
     public override string ToString()
     {
         return $"[{Role}] {Login} | ID: {Id} | Створено: {CreatedAt}";
