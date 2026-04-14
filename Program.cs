@@ -40,7 +40,7 @@ class Program
                     string login = Console.ReadLine()?.Trim().ToLower();
 
                     Console.Write("Пароль: ");
-                    string password = Console.ReadLine()?.Trim(); // ✅ NEW: trim
+                    string password = Console.ReadLine()?.Trim(); 
 
                     User doctor = doctors.Find(d =>
                         d.Login.ToLower() == login && d.Password == password);
@@ -248,7 +248,7 @@ class Program
                     run = false;
                 }
             }
-            catch (Exception ex) // ✅ NEW: глобальна обробка
+            catch (Exception ex) // глобальна обробка
             {
                 Console.WriteLine($"Помилка: {ex.Message}");
             }

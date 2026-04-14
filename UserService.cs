@@ -12,11 +12,11 @@ public class UserService
             File.Create(path).Close();
     }
 
-    // 🔹 ЗБЕРЕГТИ користувача
+    //  ЗБЕРЕГТИ користувача
     public void SaveUser(User user)
     {
-        user.Login = user.Login.Trim(); // ✅ NEW
-        user.Password = user.Password.Trim(); // ✅ NEW
+        user.Login = user.Login.Trim(); 
+        user.Password = user.Password.Trim();
 
         if (string.IsNullOrWhiteSpace(user.Login))
             throw new Exception("Пустий логін");
@@ -24,7 +24,7 @@ public class UserService
         File.AppendAllText(path, user.ToFileString() + Environment.NewLine);
     }
 
-    // 🔹 ЗАВАНТАЖИТИ всіх
+    // ЗАВАНТАЖИТИ всіх
     public List<User> LoadUsers()
     {
         var users = new List<User>();
