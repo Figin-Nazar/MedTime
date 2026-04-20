@@ -9,10 +9,10 @@
         get => _amount;
         set
         {
-            if (value <= 0) 
+            if (value <= 0) // ✅ NEW: не може бути 0 або мінус
                 throw new ArgumentException("Кількість повинна бути більше 0");
 
-            if (value > 10000) 
+            if (value > 10000) // ✅ NEW: діапазон
                 throw new ArgumentException("Занадто велика доза");
 
             _amount = value;

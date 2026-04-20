@@ -48,7 +48,7 @@ Other: {other}
         }
     }
 
-    
+   
     public void ShowPatient(string login)
     {
         string path = GetPath(login);
@@ -62,7 +62,7 @@ Other: {other}
         Console.WriteLine(File.ReadAllText(path));
     }
 
- 
+  
     public void AddMedicine(string login, string med)
     {
         string path = GetPath(login);
@@ -127,7 +127,7 @@ Other: {other}
         File.WriteAllLines(path, newLines);
     }
 
-  
+    
     public void ShowMedicines(string login)
     {
         string path = GetPath(login);
