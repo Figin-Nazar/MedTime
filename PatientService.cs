@@ -28,7 +28,7 @@ class PatientService
         return Path.Combine(folder, login + ".txt");
     }
 
-   
+    // ===================== СТВОРЕННЯ ПАЦІЄНТА =====================
     public void CreatePatient(string login, string allergies = "немає", string chronic = "немає", string other = "немає")
     {
         string path = GetPath(login);
@@ -48,7 +48,7 @@ Other: {other}
         }
     }
 
-   
+    // ===================== ВИВІД ПРОФІЛЮ =====================
     public void ShowPatient(string login)
     {
         string path = GetPath(login);
@@ -62,7 +62,7 @@ Other: {other}
         Console.WriteLine(File.ReadAllText(path));
     }
 
-  
+    // ===================== ДОДАВАННЯ ЛІКІВ =====================
     public void AddMedicine(string login, string med)
     {
         string path = GetPath(login);
@@ -127,7 +127,7 @@ Other: {other}
         File.WriteAllLines(path, newLines);
     }
 
-    
+    // ===================== ВИВІД ЛІКІВ =====================
     public void ShowMedicines(string login)
     {
         string path = GetPath(login);

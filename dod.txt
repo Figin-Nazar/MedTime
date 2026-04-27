@@ -1,0 +1,10 @@
+# PROFILE
+Allergies: no
+Chronic: no
+Other: da
+
+# CURRENT
+GastroNorm;1;9:00
+GastroNorm;1;15:00
+1;1;1
+# HISTORY

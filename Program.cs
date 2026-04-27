@@ -1,17 +1,18 @@
-﻿using SQLitePCL;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
+using Console1;
 
 class Program
 {
     private static void Main()
     {
-        Batteries.Init();
+        UserService userService = new UserService();
+        PatientService patientService = new PatientService();
+        MedUserService medUserService = new MedUserService();
 
-        var userService = new UserService();
-        var emailService = new EmailService();
-        var doctorService = new DoctorService(userService, emailService);
-        var patientService = new PatientService();
+        List<User> users = userService.LoadUsers();      
+        List<User> doctors = medUserService.LoadDoctors();
 
         Console.OutputEncoding = Encoding.UTF8;
         Console.InputEncoding = Encoding.UTF8;
@@ -20,121 +21,160 @@ class Program
 
         while (run)
         {
-            try
+            try // 
             {
                 Console.WriteLine("\n1 - Лікар");
                 Console.WriteLine("2 - Користувач");
                 Console.WriteLine("3 - Реєстрація");
                 Console.WriteLine("0 - Вихід");
 
-                if (!int.TryParse(Console.ReadLine(), out int choice))
+                if (!int.TryParse(Console.ReadLine(), out int choice)) 
                 {
                     Console.WriteLine("Введіть число!");
                     continue;
                 }
 
-                // ================= ЛІКАР =================
-                if (choice == 1)
+                // ЛІКАР
+if (choice == 1)
+{
+    Console.Write("Логін: ");
+    string login = Console.ReadLine()?.Trim().ToLower();
+
+    Console.Write("Пароль: ");
+
+    string password = Console.ReadLine()?.Trim();
+
+    User doctor = doctors.Find(d =>
+        d.Login.ToLower() == login && d.Password == password);
+
+    if (doctor == null)
+    {
+        Console.WriteLine("Невірні дані");
+        continue;
+    }
+
+    if (doctor.IsTemporaryPassword)
+    {
+        Console.WriteLine("У вас тимчасовий пароль! Потрібно змінити.");
+
+        Console.Write("Новий пароль: ");
+        string newPassword = Console.ReadLine();
+
+        doctor.Password = newPassword;
+        doctor.IsTemporaryPassword = false;
+
+        
+        medUserService.SaveAllDoctors(doctors);
+
+        Console.WriteLine("Пароль змінено!");
+    }
+
+    Console.WriteLine("Вхід успішний!");
+
+    //  МЕНЮ ЛІКАРЯ
+    while (true)
+    {
+        Console.WriteLine("\n1 - Список пацієнтів");
+        Console.WriteLine("2 - Відкрити пацієнта");
+        Console.WriteLine("0 - Назад");
+
+        if (!int.TryParse(Console.ReadLine(), out int docChoice))
+        {
+            Console.WriteLine("Введіть число!");
+            continue;
+        }
+
+        if (docChoice == 1)
+        {
+            if (users.Count == 0)
+            {
+                Console.WriteLine("Список пустий");
+                continue;
+            }
+
+            foreach (var u in users.OrderBy(u => u.Login))
+                Console.WriteLine(u.Login);
+        }
+
+        else if (docChoice == 2)
+        {
+            Console.Write("Логін пацієнта: ");
+            string pLogin = Console.ReadLine()?.Trim().ToLower();
+
+            if (string.IsNullOrWhiteSpace(pLogin))
+            {
+                Console.WriteLine("Помилка логіну");
+                continue;
+            }
+
+            patientService.CreatePatient(pLogin);
+
+            while (true)
+            {
+                Console.WriteLine("\n1 - Профіль");
+                Console.WriteLine("2 - Додати ліки");
+                Console.WriteLine("0 - Назад");
+
+                if (!int.TryParse(Console.ReadLine(), out int pChoice))
                 {
-                    Console.Write("Логін: ");
-                    string login = Console.ReadLine()?.Trim().ToLower();
-
-                    Console.Write("Пароль: ");
-                    string password = Console.ReadLine()?.Trim();
-
-                    User doctor = userService.Login(login, password);
-                    if (doctor == null || !doctor.IsDoctor)
-                    {
-                    
-                        Console.WriteLine("Невірні дані");
-                        continue;
-                    }
-
-                    if (doctor.IsFirstLogin)
-                    {
-                        Console.WriteLine("Перший вхід — змініть пароль");
-
-                        Console.Write("Новий пароль: ");
-                        string newPassword = Console.ReadLine();
-
-                        userService.UpdatePassword(login, newPassword);
-
-                        Console.WriteLine("Пароль змінено");
-                        continue;
-                    }
-
-                    Console.WriteLine("Вхід як лікар");
-
-                    while (true)
-                    {
-                        Console.WriteLine("\n1 - Список пацієнтів");
-                        Console.WriteLine("2 - Відкрити пацієнта");
-                        Console.WriteLine("0 - Назад");
-
-                        if (!int.TryParse(Console.ReadLine(), out int docChoice))
-                            continue;
-
-                        if (docChoice == 1)
-                        {
-                            Console.WriteLine("Список поки через SQL не зробили 😄");
-                        }
-                        else if (docChoice == 2)
-                        {
-                            Console.Write("Логін пацієнта: ");
-                            string pLogin = Console.ReadLine()?.Trim().ToLower();
-
-                            patientService.CreatePatient(pLogin);
-
-                            while (true)
-                            {
-                                Console.WriteLine("\n1 - Профіль");
-                                Console.WriteLine("2 - Додати ліки");
-                                Console.WriteLine("0 - Назад");
-
-                                if (!int.TryParse(Console.ReadLine(), out int pChoice))
-                                    continue;
-
-                                if (pChoice == 1)
-                                    patientService.ShowPatient(pLogin);
-
-                                else if (pChoice == 2)
-                                {
-                                    Console.Write("Назва: ");
-                                    string name = Console.ReadLine();
-
-                                    Console.Write("Доза: ");
-                                    string dose = Console.ReadLine();
-
-                                    Console.Write("Час (hh:mm): ");
-                                    string time = Console.ReadLine();
-
-                                    if (!TimeSpan.TryParse(time, out _))
-                                    {
-                                        Console.WriteLine("Невірний час");
-                                        continue;
-                                    }
-
-                                    patientService.AddMedicine(pLogin, $"{name};{dose};{time}");
-                                }
-                                else if (pChoice == 0)
-                                    break;
-                            }
-                        }
-                        else if (docChoice == 0)
-                            break;
-                    }
+                    Console.WriteLine("Введіть число!");
+                    continue;
                 }
 
-                // ================= КОРИСТУВАЧ =================
+                if (pChoice == 1)
+                    patientService.ShowPatient(pLogin);
+
+                else if (pChoice == 2)
+                {
+                    Console.Write("Назва: ");
+                    string name = Console.ReadLine()?.Trim();
+
+                    Console.Write("Доза: ");
+                    string dose = Console.ReadLine()?.Trim();
+
+                    Console.Write("Час (hh:mm): ");
+                    string time = Console.ReadLine()?.Trim();
+
+                    if (string.IsNullOrWhiteSpace(name) ||
+                        string.IsNullOrWhiteSpace(dose) ||
+                        string.IsNullOrWhiteSpace(time))
+                    {
+                        Console.WriteLine("Всі поля повинні бути заповнені");
+                        continue;
+                    }
+
+                    if (!TimeSpan.TryParse(time, out _))
+                    {
+                        Console.WriteLine("Невірний формат часу");
+                        continue;
+                    }
+
+                    patientService.AddMedicine(pLogin, $"{name};{dose};{time}");
+                }
+
+                else if (pChoice == 0)
+                    break;
+            }
+        }
+
+        else if (docChoice == 0)
+            break;
+    }
+}
+                    
+            
+
+                // КОРИСТУВАЧ
                 else if (choice == 2)
                 {
                     Console.Write("Логін: ");
                     string login = Console.ReadLine()?.Trim().ToLower();
 
                     Console.Write("Пароль: ");
-                    string password = Console.ReadLine()?.Trim();
+                    string password = Console.ReadLine()?.Trim(); 
 
-                    var user = userService.Login(login, password);
+                    User user = users.Find(u =>
+                        u.Login.ToLower() == login && u.Password == password);
 
                     if (user == null)
                     {
@@ -149,8 +189,11 @@ class Program
                         Console.WriteLine("\n1 - Мій графік");
                         Console.WriteLine("0 - Вийти");
 
-                        if (!int.TryParse(Console.ReadLine(), out int uChoice))
+                        if (!int.TryParse(Console.ReadLine(), out int uChoice)) 
+                        {
+                            Console.WriteLine("Введіть число!");
                             continue;
+                        }
 
                         if (uChoice == 1)
                             patientService.ShowMedicines(login);
@@ -160,32 +203,66 @@ class Program
                     }
                 }
 
-                // ================= РЕЄСТРАЦІЯ =================
+                // РЕЄСТРАЦІЯ
                 else if (choice == 3)
                 {
                     Console.Write("Логін: ");
                     string login = Console.ReadLine()?.Trim().ToLower();
 
+                    if (string.IsNullOrWhiteSpace(login))
+                    {
+                        Console.WriteLine("Пустий логін");
+                        continue;
+                    }
+
+                    if (login.Length > 30) 
+                    {
+                        Console.WriteLine("Логін занадто довгий");
+                        continue;
+                    }
+
                     Console.Write("Пароль: ");
-                    string password = Console.ReadLine()?.Trim();
+                    string password = Console.ReadLine()?.Trim(); 
 
-                    Console.Write("Email: ");
-                    string email = Console.ReadLine()?.Trim();
+                    if (string.IsNullOrWhiteSpace(password)) 
+                    {
+                        Console.WriteLine("Пустий пароль");
+                        continue;
+                    }
 
-                    userService.AddDoctor(login, password, email); // або окремо AddUser зробиш
+                    if (users.Exists(u => u.Login.ToLower() == login))
+                    {
+                        Console.WriteLine("Такий логін вже є");
+                        continue;
+                    }
 
-                    Console.WriteLine("Зареєстровано");
+                    Console.Write("Алергії: ");
+                    string allergies = Console.ReadLine()?.Trim(); 
+
+                    Console.Write("Хронічні: ");
+                    string chronic = Console.ReadLine()?.Trim(); 
+
+                    Console.Write("Інші: ");
+                    string other = Console.ReadLine()?.Trim(); 
+
+                    User newUser = new User(login, password, "User");
+                    userService.SaveUser(newUser);
+
+                    patientService.CreatePatient(login, allergies, chronic, other);
+
+                    users = userService.LoadUsers();
+
+                    Console.WriteLine("Готово");
                 }
 
                 else if (choice == 0)
                 {
                     run = false;
                 }
-            }
-            catch (Exception ex)
+                    }
+            catch (Exception ex) // ✅ NEW: глобальна обробка
             {
                 Console.WriteLine($"Помилка: {ex.Message}");
             }
         }
-    }
-}
+    }}

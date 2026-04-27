@@ -1,0 +1,9 @@
+# PROFILE
+Allergies: 
+Chronic: 
+Other: 
+
+# CURRENT
+Dedloc;12:05;12:43
+
+# HISTORY

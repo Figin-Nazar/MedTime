@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-class DoctorService
+class MedUserService
 {
     private string path = "MedUser.txt";
 
@@ -36,7 +36,7 @@ class DoctorService
             lines.Add(d.ToFileString());
         }
 
-        File.WriteAllLines(path, lines);
+          File.WriteAllLines("MedUser.txt", lines);
 
     }
 }

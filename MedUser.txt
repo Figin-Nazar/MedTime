@@ -1,0 +1,2 @@
+b3f1c2a4-7e9d-4c2a-8f12-123456789abc;doctor1;123;Doctor;28.04.2026 23:10:00;False
+b3f1c2a4-7e9d-4c2a-8f12-123456789abc;doctor12;1234;Doctor;28.04.2026 23:10:00;False
