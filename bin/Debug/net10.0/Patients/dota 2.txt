@@ -1,9 +1,0 @@
-# PROFILE
-Name:
-Allergies:
-Chronic:
-
-# CURRENT
-
-# HISTORY
-Parachtamol ;25 mg;9:00
