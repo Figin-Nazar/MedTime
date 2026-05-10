@@ -1,43 +1,55 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
+using Microsoft.Data.Sqlite;
 
-class MedUserService
+namespace Console1
 {
-    private string path = "MedUser.txt";
-
-    public List<User> LoadDoctors()
+    public class DoctorService
     {
-        List<User> doctors = new List<User>();
+        private readonly DatabaseService _db = new DatabaseService();
 
-        if (!File.Exists(path))
-            return doctors;
-
-        var lines = File.ReadAllLines(path);
-
-        foreach (var line in lines)
+        public User Login(string login, string password)
         {
-            doctors.Add(User.FromFileString(line));
+            using var conn = _db.GetConnection();
+            conn.Open();
+
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT * FROM Doctors WHERE Login=$login AND Password=$pass";
+
+            cmd.Parameters.AddWithValue("$login", login);
+            cmd.Parameters.AddWithValue("$pass", password);
+
+            using var reader = cmd.ExecuteReader();
+
+            if (reader.Read())
+            {
+                return new User
+                {
+                    Id = Guid.Parse(reader["Id"].ToString()),
+                    Login = reader["Login"].ToString(),
+                    Password = reader["Password"].ToString(),
+                    Email = reader["Email"].ToString(),
+                    IsTemporaryPassword = Convert.ToInt32(reader["IsTemporaryPassword"]) == 1
+                };
+            }
+
+            return null;
         }
 
-        return doctors;
-    }
-
-    public void SaveDoctor(User doctor)
-    {
-        File.AppendAllText(path, doctor.ToFileString() + "\n");
-    }
-    public void SaveAllDoctors(List<User> doctors)
-    {
-        List<string> lines = new List<string>();
-
-        foreach (var d in doctors)
+        public void UpdatePassword(string login, string newPass)
         {
-            lines.Add(d.ToFileString());
+            using var conn = _db.GetConnection();
+            conn.Open();
+
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+UPDATE Doctors 
+SET Password=$pass, IsTemporaryPassword=0
+WHERE Login=$login";
+
+            cmd.Parameters.AddWithValue("$pass", newPass);
+            cmd.Parameters.AddWithValue("$login", login);
+
+            cmd.ExecuteNonQuery();
         }
-
-          File.WriteAllLines("MedUser.txt", lines);
-
     }
 }
-    

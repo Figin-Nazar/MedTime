@@ -1,23 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
-namespace Console1
+public class AuthService
 {
-    class AuthService
+    private static Random random = new Random();
+
+    // 🔐 Генерація пароля
+    public string GeneratePassword(int length = 8)
     {
-        private Random rnd = new Random();
+        const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        return new string(Enumerable.Repeat(chars, length)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
 
-        public string GenerateTempPassword()
-        {
-            return rnd.Next(100000, 999999).ToString();
-        }
+    // Генерація логіну
+    public string GenerateLogin(string firstName, string lastName)
+    {
+        string baseLogin = (firstName + "." + lastName).ToLower();
 
-        public void SendCredentials(string login, string password)
-        {
-            Console.WriteLine("=== Відправка даних ===");
-            Console.WriteLine($"Login: {login}");
-            Console.WriteLine($"Password: {password}");
-        }
+        // додаємо випадкове число щоб уникнути дублювання
+        int num = random.Next(100, 999);
+
+        return $"{baseLogin}{num}";
     }
 }

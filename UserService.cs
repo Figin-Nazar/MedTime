@@ -1,43 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using Microsoft.Data.Sqlite;
 
-public class UserService
+namespace Console1
 {
-    private string path = "users.txt";
-
-    public UserService()
+    public class UserService
     {
-        if (!File.Exists(path))
-            File.Create(path).Close();
-    }
+        private readonly DatabaseService _db = new DatabaseService();
 
-    // 🔹 ЗБЕРЕГТИ користувача
-    public void SaveUser(User user)
-    {
-        user.Login = user.Login.Trim(); // ✅ NEW
-        user.Password = user.Password.Trim(); // ✅ NEW
-
-        if (string.IsNullOrWhiteSpace(user.Login))
-            throw new Exception("Пустий логін");
-
-        File.AppendAllText(path, user.ToFileString() + Environment.NewLine);
-    }
-
-    // 🔹 ЗАВАНТАЖИТИ всіх
-    public List<User> LoadUsers()
-    {
-        var users = new List<User>();
-
-        var lines = File.ReadAllLines(path);
-
-        foreach (var line in lines)
+        
+        public void Register(User user)
         {
-            var user = User.FromFileString(line);
-            if (user != null)
-                users.Add(user);
+            using var conn = _db.GetConnection();
+            conn.Open();
+
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+INSERT INTO Users (Id, Login, Password, Email, IsTemporaryPassword)
+VALUES ($id, $login, $pass, $email, $temp)";
+
+            cmd.Parameters.AddWithValue("$id", user.Id.ToString());
+            cmd.Parameters.AddWithValue("$login", user.Login);
+            cmd.Parameters.AddWithValue("$pass", user.Password);
+            cmd.Parameters.AddWithValue("$email", user.Email ?? "");
+            cmd.Parameters.AddWithValue("$temp", user.IsTemporaryPassword ? 1 : 0);
+
+            cmd.ExecuteNonQuery();
         }
 
-        return users;
+        public User Login(string login, string password)
+        {
+            using var conn = _db.GetConnection();
+            conn.Open();
+
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT * FROM Users WHERE Login=$login AND Password=$pass";
+
+            cmd.Parameters.AddWithValue("$login", login);
+            cmd.Parameters.AddWithValue("$pass", password);
+
+            using var reader = cmd.ExecuteReader();
+
+            if (reader.Read())
+            {
+                return new User
+                {
+                    Id = Guid.Parse(reader["Id"].ToString()),
+                    Login = reader["Login"].ToString(),
+                    Password = reader["Password"].ToString(),
+                    Email = reader["Email"].ToString(),
+                    IsTemporaryPassword = Convert.ToInt32(reader["IsTemporaryPassword"]) == 1
+                };
+            }
+
+            return null;
+        }
     }
 }
